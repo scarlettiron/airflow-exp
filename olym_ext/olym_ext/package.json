@@ -1,0 +1,53 @@
+{
+  "name": "olym_ext",
+  "version": "0.1.0",
+  "description": "Jupyterlab extension for ui reduction",
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension"
+  ],
+  "homepage": "https://github.com/github_username/olym_ext",
+  "bugs": {
+    "url": "https://github.com/github_username/olym_ext/issues"
+  },
+  "license": "BSD-3-Clause",
+  "author": {
+    "name": "olym",
+    "email": "olym"
+  },
+  "files": [
+    "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
+    "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+  ],
+  "main": "lib/index.js",
+  "style": "style/index.css",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/github_username/olym_ext.git"
+  },
+  "scripts": {
+    "build": "npm run build:labextension:dev",
+    "build:prod": "npm run build:labextension",
+    "build:labextension": "jupyter labextension build .",
+    "build:labextension:dev": "jupyter labextension build --development True .",
+    "clean:labextension": "rimraf olym_ext/labextension",
+    "clean:all": "npm run clean:labextension",
+    "prepare": "npm run build:prod",
+    "watch": "npm run watch:labextension",
+    "watch:labextension": "jupyter labextension watch ."
+  },
+  "devDependencies": {
+    "@jupyterlab/builder": "^4.2.5",
+    "rimraf": "^3.0.2"
+  },
+  "sideEffects": [
+    "style/*.css",
+    "style/index.js"
+  ],
+  "styleModule": "style/index.js",
+  "jupyterlab": {
+    "extension": true,
+    "outputDir": "olym_ext/labextension"
+  }
+}

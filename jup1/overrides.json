@@ -1,0 +1,14 @@
+{
+    "theme": "JupyterLab Light",
+    "overrides": {
+      "color": {
+        "--jp-brand-color1": "#1d3557",
+        "--jp-brand-color2": "#457b9d",
+        "--jp-layout-color1": "#4abd24",
+        "--jp-layout-color2": "#a8dadc",
+        "--jp-inverse-layout-color": "#1d3557",
+        "--jp-ui-font-color0": "#333333",
+        "--jp-cell-editor-background": "#f9f9f9"
+      }
+    }
+  }
