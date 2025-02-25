@@ -325,3 +325,68 @@ class AirflowAllDagLogsView(APIView):
             all_dag_logs[dag_id] = dag_logs
 
         return Response({"all_logs": all_dag_logs}, status=status.HTTP_200_OK)
+
+
+
+
+
+
+class AirflowLogsViewNonSession(APIView):
+    def get(self, request, *args, **kwargs):
+        # Airflow configuration (these could also be stored in settings)
+        airflow_url = 'http://localhost:8080'
+        airflow_user = 'admin'
+        airflow_password = 'admin'
+        auth = (airflow_user, airflow_password)
+
+        # Step 1: Retrieve the list of all DAGs.
+        dags_url = f"{airflow_url}/api/v1/dags"
+        dags_response = requests.get(dags_url, auth=auth)
+        if dags_response.status_code != 200:
+            return Response(
+                {"error": "Failed to fetch DAGs."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        dags_data = dags_response.json()
+        dags = dags_data.get("dags", [])
+
+        all_dag_logs = {}
+
+        # Step 2: For each DAG, fetch its DAG runs and logs.
+        for dag in dags:
+            dag_id = dag.get("dag_id")
+            dag_runs_url = f"{airflow_url}/api/v1/dags/{dag_id}/dagRuns"
+            dag_runs_response = requests.get(dag_runs_url, auth=auth)
+            if dag_runs_response.status_code != 200:
+                continue
+
+            dag_runs_data = dag_runs_response.json()
+            dag_runs = dag_runs_data.get("dag_runs", [])
+            dag_logs = {}
+
+            # Step 3: For each DAG run, fetch task instances and logs.
+            for dag_run in dag_runs:
+                run_id = dag_run.get("dag_run_id")
+                task_instances_url = f"{airflow_url}/api/v1/dags/{dag_id}/dagRuns/{run_id}/taskInstances"
+                ti_response = requests.get(task_instances_url, auth=auth)
+                if ti_response.status_code != 200:
+                    continue
+
+                ti_data = ti_response.json()
+                task_instances = ti_data.get("task_instances", [])
+                run_logs = {}
+
+                for task_instance in task_instances:
+                    task_id = task_instance.get("task_id")
+                    try_number = task_instance.get("try_number", 1)
+                    log_url = f"{airflow_url}/api/v1/dags/{dag_id}/dagRuns/{run_id}/taskInstances/{task_id}/logs/{try_number}"
+                    log_response = requests.get(log_url, auth=auth)
+                    if log_response.status_code == 200:
+                        run_logs[task_id] = log_response.text
+                    else:
+                        run_logs[task_id] = f"Error fetching log: {log_response.status_code}"
+                dag_logs[run_id] = run_logs
+
+            all_dag_logs[dag_id] = dag_logs
+
+        return Response({"all_logs": all_dag_logs}, status=status.HTTP_200_OK)
